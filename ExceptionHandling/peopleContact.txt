@@ -1,0 +1,18 @@
+Budi Santoso:Telepon=+62 812-3456-7890,Email=budi.santoso@example.com;
+Intan Dwi Anggreini:Telepon=+62 857-4946-1049,Email=d.intananggreini@gmail.com;
+Ani Wijaya:Telepon=+62 878-9012-3456,Email=ani.wijaya@business.com;
+Rina Permata:Telepon=+62 821-2345-6789,Email=rina.permata@gmail.com;
+Agus Setiawan:Telepon=+62 811-9876-5432,Email=agus.setiawan@company.id;
+Dewi Lestari:Telepon=+62 823-4567-8901,Email=dewi.lestari@mail.net;
+Alfian Prisma Yopiangga:Telepon=+62 823-3041-0865,Email=yopi.alfian@indonesia.com;
+Fajar Nugraha:Telepon=+62 813-1122-3344 ,Email=fajar.nugraha@tech.id;
+Maya Indahari:Telepon=+62 817-2233-4455 ,Email=maya.indahari@creative.com;
+Hendra Kurnia:Telepon=+62 822-3344-5566 ,Email=hendra.k@engineer.net;
+Lina Mariani:Telepon=+62 831-4455-6677 ,Email=lina.mariani@design.org;
+Rizky Pratama:Telepon=+62 852-5566-7788 ,Email=rizky.p@startup.id;
+Siti Rahayu:Telepon=+62 811-6677-8899,Email=siti.rahayu@edu.ac.id;
+Aditya Saputra:Telepon=+62 878-7788-9900,Email=aditya.s@consultant.com;
+Nurul Hasanah:Telepon=+62 823-8899-0011 ,Email=nurul.h@healthcare.id;
+Muhammad Heru Mahayani:Telepon=+62 856-4910-0364,Email=harumahayani@smeksa.co.id;
+Irfan Maulana:Telepon=+62 812-9900-1122,Email=irfan.m@digital.com;
+Dian Permatasari:Telepon=+62 821-0011-2233 ,Email=dian.permata@artstudio.com;
