@@ -1,0 +1,13 @@
+[2025-04-09 08:30:10] LOGIN: user1
+[2025-04-09 08:32:05] VIEW_PAGE: user1 -> /dashboard
+[2025-04-09 08:35:20] CLICK_BUTTON: user1 -> "Download Report"
+[2025-04-09 08:36:45] LOGOUT: user1
+[2025-04-09 08:45:12] LOGIN: user2
+[2025-04-09 08:46:00] VIEW_PAGE: user2 -> /profile
+[2025-04-09 08:47:30] UPDATE_PROFILE: user2 -> "Changed password"
+[2025-04-09 08:48:55] ERROR: user2 -> "Session timeout"
+[2025-04-09 08:50:03] LOGIN: user3
+[2025-04-09 08:52:15] VIEW_PAGE: user3 -> /products
+[2025-04-09 08:53:21] ADD_TO_CART: user3 -> ProductID: 12345
+[2025-04-09 08:54:00] CHECKOUT: user3 -> OrderID: 98765
+[2025-04-09 08:55:10] LOGOUT: user3
