@@ -6,3 +6,5 @@ plotly==6.1.1
 pymongo==4.13.0
 streamlit==1.44.1
 Python_IO==0.3
+XlsxWriter==3.2.3
+openpyxl==3.1.5
