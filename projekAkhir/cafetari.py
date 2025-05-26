@@ -68,7 +68,7 @@ if "data" not in st.session_state:
         "price": 0
     }
 
-st.markdown("<h1 style='text-align: center;'>🍪 Kun Anta Coffe</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>🍪 Kun Anta Restaurant</h1>", unsafe_allow_html=True)
 
 # HALAMAN 1: Input Nama
 if st.session_state.page == 1:
