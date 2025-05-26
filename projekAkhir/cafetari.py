@@ -1,3 +1,4 @@
+import logging as log
 import streamlit as st
 from pymongo import MongoClient, errors
 from datetime import datetime
@@ -15,9 +16,9 @@ collection = db["order_mongo"]
 
 try:
     client.admin.command('ping')
-    print("Koneksi ke MongoDB Atlas berhasil!")
+    log.info("Koneksi ke MongoDB Atlas berhasil!")
 except Exception as e:
-    print("Terjadi kesalahan saat menghubungkan ke MongoDB Atlas:", e)
+    log.error("Terjadi kesalahan saat menghubungkan ke MongoDB Atlas:", e)
 
 
 def insert_order(name, food, drink):
@@ -43,7 +44,7 @@ def insert_order(name, food, drink):
 
     try:
         collection.insert_one(document)
-        st.success("✅ Pesanan berhasil disimpan!")
+        st.success("✅ Pesanan berhasil dibuat!")
     except errors.PyMongoError as e:
         st.error(f"❌ Gagal menyimpan ke database: {e}")
 
