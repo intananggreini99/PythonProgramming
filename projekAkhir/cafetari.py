@@ -46,7 +46,7 @@ def insert_order(name, food, drink):
         collection.insert_one(document)
         st.success("✅ Pesanan berhasil dibuat!")
     except errors.PyMongoError as e:
-        st.error(f"❌ Gagal menyimpan ke database: {e}")
+        st.error(f"❌ Pesanan gagal dibuat!")
 
 if "page" not in st.session_state:
     st.session_state.page = 1
