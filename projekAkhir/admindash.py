@@ -1,3 +1,4 @@
+import logging as log
 import streamlit as st
 from datetime import datetime, timedelta
 import pandas as pd
@@ -15,6 +16,12 @@ client = MongoClient(
 
 db = client["salesrecord"]
 collection = db["order_mongo"]
+
+try:
+    client.admin.command('ping')
+    log.info("Koneksi ke MongoDB Atlas berhasil!")
+except Exception as e:
+    log.error("Terjadi kesalahan saat menghubungkan ke MongoDB Atlas:", e)
 
 # --- Ambil data dari MongoDB dan ubah ke DataFrame ---
 data = list(collection.find({}, {"_id": 0}))
