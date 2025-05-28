@@ -1,15 +1,15 @@
-import logging as log
 import streamlit as st
-from datetime import datetime, timedelta
 import pandas as pd
-import plotly.express as px
-from pymongo import MongoClient
-import certifi
 import io
+from datetime import datetime, timedelta
+import plotly.express as px
+from pymongo import MongoClient  
+import certifi
 
-# --- Koneksi ke MongoDB Atlas ---
+# Koneksi ke MongoDB
 client = MongoClient(
-    "mongodb+srv://dintananggreini99:1N7AN999intan@clusterkunanta.9pyj4dh.mongodb.net/?retryWrites=true&w=majority&appName=ClusterKunAnta"
+    "mongodb+srv://dintananggreini99:1N7AN999intan@clusterkunanta.9pyj4dh.mongodb.net\
+        /?retryWrites=true&w=majority&appName=ClusterKunAnta"
     ,tls=True,
     tlsCAFile=certifi.where()
 )
@@ -17,24 +17,18 @@ client = MongoClient(
 db = client["salesrecord"]
 collection = db["order_mongo"]
 
-try:
-    client.admin.command('ping')
-    log.info("Koneksi ke MongoDB Atlas berhasil!")
-except Exception as e:
-    log.error("Terjadi kesalahan saat menghubungkan ke MongoDB Atlas:", e)
-
-# --- Ambil data dari MongoDB dan ubah ke DataFrame ---
-data = list(collection.find({}, {"_id": 0}))
-df = pd.DataFrame(data)
-
 # --- Sidebar Navigasi ---
 st.sidebar.title("Menu")
 halaman = st.sidebar.radio("Choose Page :", ["📋 Order Record", "📊 Economic Order Quantity"])
 
+# Tambahan: Input teks untuk regex pencarian nama pemesan
+regex_filter = st.sidebar.text_input("🔍 Filter Pemesan (Regex)", "")
+
 # --- Halaman Tabel ---
 if halaman == "📋 Order Record":
-    # Ambil data dari MongoDB
-    data = collection.find({})
+    # Ambil data dari MongoDB dengan regex filter pada 'pemesan'
+    query = {"pemesan": {"$regex": regex_filter, "$options": "i"}} if regex_filter else {}
+    data = collection.find(query)
 
     # Proses data nested jadi tabel datar
     flattened_data = []
@@ -70,7 +64,6 @@ if halaman == "📋 Order Record":
 
     st.title("📋 Order Record")
     if not df.empty:
-
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
             df.to_excel(writer, index=False, sheet_name='DataPesanan')
@@ -78,21 +71,21 @@ if halaman == "📋 Order Record":
         tanggal = datetime.now().strftime("%Y%m%d")
         nama_file = f"order_record_{tanggal}.xlsx"
         st.download_button(
-                label= "📥 Download Data",
-                data= output,
-                file_name= nama_file,
-                mime= "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            )
+            label="📥 Download Data",
+            data=output,
+            file_name=nama_file,
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
 
         st.dataframe(df)
     else:
         st.warning("Tidak ada data ditemukan.")
 
-
 # --- Halaman Grafik ---
 elif halaman == "📊 Economic Order Quantity":
     st.title("📊 EOQ")
-    data = collection.find({})
+    query = {"pemesan": {"$regex": regex_filter, "$options": "i"}} if regex_filter else {}
+    data = collection.find(query)
 
     item_counter = {}
 
@@ -106,7 +99,6 @@ elif halaman == "📊 Economic Order Quantity":
 
     if item_counter:
         df_summary = pd.DataFrame(list(item_counter.items()), columns=["makanan", "jumlah"])
-
         st.markdown("<h3 style='text-align: center;'>Economic Order Quantity</h3>", unsafe_allow_html=True)
         fig = px.bar(df_summary, x="makanan", y="jumlah", color="makanan")
         st.plotly_chart(fig)
