@@ -10,8 +10,7 @@ import re
 
 # --- Koneksi ke MongoDB Atlas ---
 client = MongoClient(
-    "mongodb+srv://dintananggreini99:1N7AN999intan@clusterkunanta.9pyj4dh.mongodb.net\
-        /?retryWrites=true&w=majority&appName=ClusterKunAnta"
+    "mongodb+srv://dintananggreini99:1N7AN999intan@clusterkunanta.9pyj4dh.mongodb.net/?retryWrites=true&w=majority&appName=ClusterKunAnta"
     ,tls=True,
     tlsCAFile=certifi.where()
 )
