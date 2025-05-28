@@ -9,3 +9,4 @@ Python_IO==0.3
 XlsxWriter==3.2.3
 openpyxl==3.1.5
 logging==0.4.9.6
+regex==2024.11.6
