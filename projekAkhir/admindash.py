@@ -151,6 +151,6 @@ elif halaman == "🔍 Tracer Customer":
                 item_unik = list(dict.fromkeys(data["items"]))
 
                 st.markdown(f"**Pelanggan {nama}** telah berkunjung ke Kun Anta Restaurant pada terakhir kali **{tanggal_terbaru}**.")
-                st.markdown("Berikut menu yang dipesannya setiap kali berkunjung:")
+                st.markdown("Berikut menu yang dipesan setiap kali berkunjung:")
                 for i, item in enumerate(item_unik, 1):
                     st.markdown(f"{i}. {item}")
