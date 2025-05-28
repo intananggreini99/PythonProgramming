@@ -1,12 +1,14 @@
+import logging as log
 import streamlit as st
-import pandas as pd
-import io
 from datetime import datetime, timedelta
+import pandas as pd
 import plotly.express as px
-from pymongo import MongoClient  
+from pymongo import MongoClient
 import certifi
+import io
+import re
 
-# Koneksi ke MongoDB
+# --- Koneksi ke MongoDB Atlas ---
 client = MongoClient(
     "mongodb+srv://dintananggreini99:1N7AN999intan@clusterkunanta.9pyj4dh.mongodb.net\
         /?retryWrites=true&w=majority&appName=ClusterKunAnta"
@@ -17,18 +19,25 @@ client = MongoClient(
 db = client["salesrecord"]
 collection = db["order_mongo"]
 
+try:
+    client.admin.command('ping')
+    log.info("Koneksi ke MongoDB Atlas berhasil!")
+except Exception as e:
+    log.error("Terjadi kesalahan saat menghubungkan ke MongoDB Atlas:", e)
+
+# --- Ambil data dari MongoDB dan ubah ke DataFrame ---
+data = list(collection.find({}, {"_id": 0}))
+df = pd.DataFrame(data)
+
 # --- Sidebar Navigasi ---
 st.sidebar.title("Menu")
-halaman = st.sidebar.radio("Choose Page :", ["📋 Order Record", "📊 Economic Order Quantity"])
-
-# Tambahan: Input teks untuk regex pencarian nama pemesan
-regex_filter = st.sidebar.text_input("🔍 Filter Pemesan (Regex)", "")
+halaman = st.sidebar.radio("Choose Page :", ["📋 Order Record",\
+             "📊 Economic Order Quantity", "🔍 Tracer Customer"])
 
 # --- Halaman Tabel ---
 if halaman == "📋 Order Record":
-    # Ambil data dari MongoDB dengan regex filter pada 'pemesan'
-    query = {"pemesan": {"$regex": regex_filter, "$options": "i"}} if regex_filter else {}
-    data = collection.find(query)
+    # Ambil data dari MongoDB
+    data = collection.find({})
 
     # Proses data nested jadi tabel datar
     flattened_data = []
@@ -64,6 +73,7 @@ if halaman == "📋 Order Record":
 
     st.title("📋 Order Record")
     if not df.empty:
+
         output = io.BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
             df.to_excel(writer, index=False, sheet_name='DataPesanan')
@@ -71,21 +81,21 @@ if halaman == "📋 Order Record":
         tanggal = datetime.now().strftime("%Y%m%d")
         nama_file = f"order_record_{tanggal}.xlsx"
         st.download_button(
-            label="📥 Download Data",
-            data=output,
-            file_name=nama_file,
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
+                label= "📥 Download Data",
+                data= output,
+                file_name= nama_file,
+                mime= "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
 
         st.dataframe(df)
     else:
         st.warning("Tidak ada data ditemukan.")
 
+
 # --- Halaman Grafik ---
 elif halaman == "📊 Economic Order Quantity":
     st.title("📊 EOQ")
-    query = {"pemesan": {"$regex": regex_filter, "$options": "i"}} if regex_filter else {}
-    data = collection.find(query)
+    data = collection.find({})
 
     item_counter = {}
 
@@ -99,8 +109,49 @@ elif halaman == "📊 Economic Order Quantity":
 
     if item_counter:
         df_summary = pd.DataFrame(list(item_counter.items()), columns=["makanan", "jumlah"])
+
         st.markdown("<h3 style='text-align: center;'>Economic Order Quantity</h3>", unsafe_allow_html=True)
         fig = px.bar(df_summary, x="makanan", y="jumlah", color="makanan")
         st.plotly_chart(fig)
     else:
         st.warning("Tidak ada data ditemukan.")
+
+elif halaman == "🔍 Tracer Customer":
+    st.subheader("🔍 Tracer Customer")
+    input_nama = st.text_input("Masukkan nama pemesan (bisa sebagian):")
+
+    regex = re.compile(input_nama, re.IGNORECASE)
+    hasil_cari = list(collection.find({"pemesan": regex}))
+
+    if not hasil_cari:
+            st.info(f"Tidak ditemukan data untuk pemesan yang cocok dengan '{input_nama}'.")
+    else:
+            # Kelompokkan berdasarkan nama
+            pemesan_dict = {}
+            for doc in hasil_cari:
+                nama = doc['pemesan']
+                tanggal = doc.get('date', '2000-01-01 00:00:00')
+                items = doc.get('item', [])
+
+                if nama not in pemesan_dict:
+                    pemesan_dict[nama] = {
+                        "dates": [],
+                        "items": []
+                    }
+                pemesan_dict[nama]["dates"].append(tanggal)
+                pemesan_dict[nama]["items"].extend(items)
+
+            for nama, data in pemesan_dict.items():
+                try:
+                    tanggal_terbaru = max(
+                        data["dates"], key=lambda d: datetime.strptime(d, "%Y-%m-%d %H:%M:%S")
+                    )
+                except ValueError:
+                    tanggal_terbaru = max(data["dates"])  # fallback jika format tidak valid
+
+                item_unik = list(dict.fromkeys(data["items"]))
+
+                st.markdown(f"**Pelanggan {nama}** telah berkunjung ke Kun Anta Restaurant pada terakhir kali **{tanggal_terbaru}**.")
+                st.markdown("Berikut menu yang dipesannya selama berkunjung:")
+                for i, item in enumerate(item_unik, 1):
+                    st.markdown(f"{i}. {item}")
