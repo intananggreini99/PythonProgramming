@@ -10,13 +10,14 @@ import re
 
 # --- Koneksi ke MongoDB Atlas ---
 client = MongoClient(
-    "mongodb+srv://dintananggreini99:1N7AN999intan@clusterkunanta.9pyj4dh.mongodb.net/?retryWrites=true&w=majority&appName=ClusterKunAnta"
+    "mongodb+srv://dintananggreini99:1N7AN999intan@clusterkunanta.9pyj4dh.mongodb.net\
+        /?retryWrites=true&w=majority&appName=ClusterKunAnta"
     ,tls=True,
     tlsCAFile=certifi.where()
 )
 
-db = client["salesrecord"]
-collection = db["order_mongo"]
+database = client["salesrecord"]
+collection = database["order_mongo"]
 
 try:
     client.admin.command('ping')
@@ -26,7 +27,7 @@ except Exception as e:
 
 # --- Ambil data dari MongoDB dan ubah ke DataFrame ---
 data = list(collection.find({}, {"_id": 0}))
-df = pd.DataFrame(data)
+dataframeDB = pd.DataFrame(data)
 
 # --- Sidebar Navigasi ---
 st.sidebar.title("Menu")
@@ -38,7 +39,6 @@ if halaman == "📋 Order Record":
     # Ambil data dari MongoDB
     data = collection.find({})
 
-    # Proses data nested jadi tabel datar
     flattened_data = []
     for doc in data:
         customer = doc.get("pemesan", "")
@@ -67,29 +67,25 @@ if halaman == "📋 Order Record":
             }
             flattened_data.append(row)
 
-    # Konversi ke DataFrame
-    df = pd.DataFrame(flattened_data)
+
+    dataFrameOrder = pd.DataFrame(flattened_data)
 
     st.title("📋 Order Record")
-    if not df.empty:
 
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-            df.to_excel(writer, index=False, sheet_name='DataPesanan')
-        output.seek(0)
-        tanggal = datetime.now().strftime("%Y%m%d")
-        nama_file = f"order_record_{tanggal}.xlsx"
-        st.download_button(
-                label= "📥 Download Data",
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            dataFrameOrder.to_excel(writer, index=False, sheet_name='DataPesanan')
+    output.seek(0)
+    tanggal = datetime.now().strftime("%Y%m%d")
+    nama_file = f"order_record_{tanggal}.xlsx"
+    st.download_button(
+            label= "📥 Download Data",
                 data= output,
                 file_name= nama_file,
                 mime= "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
-        st.dataframe(df)
-    else:
-        st.warning("Tidak ada data ditemukan.")
-
+    st.dataframe(dataFrameOrder)
 
 # --- Halaman Grafik ---
 elif halaman == "📊 Economic Order Quantity":
@@ -110,10 +106,10 @@ elif halaman == "📊 Economic Order Quantity":
         df_summary = pd.DataFrame(list(item_counter.items()), columns=["makanan", "jumlah"])
 
         st.markdown("<h3 style='text-align: center;'>Economic Order Quantity</h3>", unsafe_allow_html=True)
-        fig = px.bar(df_summary, x="makanan", y="jumlah", color="makanan")
-        st.plotly_chart(fig)
+        barChart = px.bar(df_summary, x="makanan", y="jumlah", color="makanan")
+        st.plotly_chart(barChart)
     else:
-        st.warning("Tidak ada data ditemukan.")
+        st.warning("Data tidak ditemukan.")
 
 elif halaman == "🔍 Tracer Customer":
     st.subheader("🔍 Tracer Customer")
@@ -131,7 +127,8 @@ elif halaman == "🔍 Tracer Customer":
                 nama = doc['pemesan']
                 tanggal = doc.get('date', '2000-01-01 00:00:00')
                 items = doc.get('item', [])
-
+                
+                #menghindari duplikat
                 if nama not in pemesan_dict:
                     pemesan_dict[nama] = {
                         "dates": [],
@@ -151,6 +148,6 @@ elif halaman == "🔍 Tracer Customer":
                 item_unik = list(dict.fromkeys(data["items"]))
 
                 st.markdown(f"**Pelanggan {nama}** telah berkunjung ke Kun Anta Restaurant pada terakhir kali **{tanggal_terbaru}**.")
-                st.markdown("Berikut menu yang dipesan setiap kali berkunjung:")
+                st.markdown("Berikut menu yang dipesannya selama berkunjung:")
                 for i, item in enumerate(item_unik, 1):
                     st.markdown(f"{i}. {item}")
